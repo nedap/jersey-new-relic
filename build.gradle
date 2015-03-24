@@ -11,12 +11,22 @@ ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
+configurations {
+    provided {
+        dependencies.all { dep ->
+            configurations.default.exclude group: dep.group, module: dep.name
+        }
+    }
+    compile.extendsFrom provided
+}
+
 ext {
   depVersions = [
       jersey: '1.17.1',
       slf4j: '1.7.5',
       jetty: '9.0.5.v20130815',
-      guice: '3.0'
+      guice: '3.0',
+      newrelic: '3.14.0'
   ]
 }
 
@@ -31,17 +41,17 @@ buildscript {
 }
 
 dependencies {
-  compile "com.sun.jersey:jersey-core:$depVersions.jersey"
-  compile "com.sun.jersey:jersey-server:$depVersions.jersey"
+  compile "com.newrelic.agent.java:newrelic-api:$depVersions.newrelic"
+  compile "org.slf4j:slf4j-api:$depVersions.slf4j"
 
-  compile 'com.newrelic.agent.java:newrelic-api:2.21.4'
+  provided "com.sun.jersey:jersey-core:$depVersions.jersey"
+  provided "com.sun.jersey:jersey-server:$depVersions.jersey"
 
-  compile 'com.google.code.findbugs:jsr305:2.0.1'
+  provided 'com.google.code.findbugs:jsr305:2.0.1'
 
   // use jetty's servlet-api package
-  compile 'org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016'
+  provided 'org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016'
 
-  compile "org.slf4j:slf4j-api:$depVersions.slf4j"
   testRuntime "org.slf4j:slf4j-simple:$depVersions.slf4j"
   testRuntime "org.slf4j:log4j-over-slf4j:$depVersions.slf4j"
   testRuntime "org.slf4j:jcl-over-slf4j:$depVersions.slf4j"
