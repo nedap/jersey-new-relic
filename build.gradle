@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'com.palominolabs.jersey'
-version = '1.0.1-SNAPSHOT'
+version = '1.0.0-NEDAP'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 sourceCompatibility = JavaVersion.VERSION_1_7
@@ -19,13 +19,10 @@ ext {
 }
 
 dependencies {
-  compile "com.palominolabs.config:config-inject:1.0.0"
   compile "com.sun.jersey:jersey-core:$depVersions.jersey"
   compile "com.sun.jersey:jersey-server:$depVersions.jersey"
 
   compile 'com.newrelic.agent.java:newrelic-api:2.21.4'
-
-  compile "com.google.inject:guice:$depVersions.guice"
 
   compile 'com.google.code.findbugs:jsr305:2.0.1'
 

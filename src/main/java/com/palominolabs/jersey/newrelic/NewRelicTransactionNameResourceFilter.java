@@ -8,6 +8,8 @@ import com.sun.jersey.spi.container.ResourceFilter;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.newrelic.api.agent.NewRelic;
+
 /**
  * Uses the name provided by {@link NewRelicResourceFilterFactory} to assign the New Relic transaction name for the
  * active request.
@@ -15,7 +17,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 final class NewRelicTransactionNameResourceFilter implements ResourceFilter, ContainerRequestFilter {
 
-    private final NewRelicWrapper newRelicWrapper;
     private final String transactionName;
     private final String category;
 
@@ -24,9 +25,7 @@ final class NewRelicTransactionNameResourceFilter implements ResourceFilter, Con
      * @param category        new relic category
      * @param transactionName the transaction name that this filter will apply to all requests.
      */
-    NewRelicTransactionNameResourceFilter(NewRelicWrapper newRelicWrapper, @Nullable String category,
-        String transactionName) {
-        this.newRelicWrapper = newRelicWrapper;
+    NewRelicTransactionNameResourceFilter(@Nullable String category, String transactionName) {
         this.category = category;
         this.transactionName = transactionName;
     }
@@ -44,7 +43,7 @@ final class NewRelicTransactionNameResourceFilter implements ResourceFilter, Con
 
     @Override
     public ContainerRequest filter(ContainerRequest request) {
-        newRelicWrapper.setTransactionName(category, this.transactionName);
+        NewRelic.setTransactionName(category, this.transactionName);
         return request;
     }
 }

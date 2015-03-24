@@ -3,8 +3,6 @@ package com.palominolabs.jersey.newrelic;
 * Copyright (c) 2012 Palomino Labs, Inc.
 */
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.sun.jersey.api.model.AbstractMethod;
 import com.sun.jersey.api.model.AbstractResourceMethod;
 import com.sun.jersey.api.model.AbstractSubResourceLocator;
@@ -21,7 +19,6 @@ import java.util.Map;
 /**
  * Adds resource filters to integrate New Relic into the Jersey invocation stack.
  */
-@Singleton
 public final class NewRelicResourceFilterFactory implements ResourceFilterFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(NewRelicResourceFilterFactory.class);
@@ -31,24 +28,16 @@ public final class NewRelicResourceFilterFactory implements ResourceFilterFactor
      */
     public static final String TRANSACTION_CATEGORY_PROP = "com.palominolabs.jersey.newrelic.transaction.category";
 
-    private final ResourceTransactionNamer namer;
-
     private final String category;
 
-    private final NewRelicWrapper newRelicWrapper;
-
-    @Inject
-    NewRelicResourceFilterFactory(ResourceTransactionNamer namer, FeaturesAndProperties featuresAndProperties,
-        NewRelicWrapper newRelicWrapper) {
-        this.namer = namer;
-        this.newRelicWrapper = newRelicWrapper;
-
-        Map<String, Object> props = featuresAndProperties.getProperties();
-        if (props.containsKey(TRANSACTION_CATEGORY_PROP)) {
-            this.category = (String) props.get(TRANSACTION_CATEGORY_PROP);
-        } else {
-            this.category = null;
-        }
+    public NewRelicResourceFilterFactory() {
+        this.category = null;
+        // Map<String, Object> props = featuresAndProperties.getProperties();
+        // if (props.containsKey(TRANSACTION_CATEGORY_PROP)) {
+        //     this.category = (String) props.get(TRANSACTION_CATEGORY_PROP);
+        // } else {
+        //     this.category = null;
+        // }
     }
 
     @Override
@@ -59,10 +48,10 @@ public final class NewRelicResourceFilterFactory implements ResourceFilterFactor
             logger.debug("Ignoring AbstractSubResourceLocator " + am);
             return null;
         } else if (am instanceof AbstractResourceMethod) {
-            String transactionName = namer.getTransactionName((AbstractResourceMethod) am);
+            String transactionName = ResourceTransactionNamer.getTransactionName((AbstractResourceMethod) am);
 
-            return Arrays.asList(new NewRelicTransactionNameResourceFilter(newRelicWrapper, category, transactionName),
-                new NewRelicMappedThrowableResourceFilter(newRelicWrapper));
+            return Arrays.asList(new NewRelicTransactionNameResourceFilter(category, transactionName),
+                new NewRelicMappedThrowableResourceFilter());
         } else {
             logger.warn("Got an unexpected instance of " + am.getClass().getName() + ": " + am);
             return null;

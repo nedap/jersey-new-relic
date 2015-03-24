@@ -8,6 +8,8 @@ import com.sun.jersey.spi.container.ResourceFilter;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.newrelic.api.agent.NewRelic;
+
 /**
  * Informs New Relic about mapped throwables that are being handled by Jersey rather than propagated up the servlet
  * handling chain.
@@ -15,10 +17,8 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 final class NewRelicMappedThrowableResourceFilter implements ResourceFilter, ContainerResponseFilter {
 
-    private final NewRelicWrapper newRelicWrapper;
 
-    NewRelicMappedThrowableResourceFilter(NewRelicWrapper newRelicWrapper) {
-        this.newRelicWrapper = newRelicWrapper;
+    NewRelicMappedThrowableResourceFilter() {
     }
 
     @Override
@@ -36,7 +36,7 @@ final class NewRelicMappedThrowableResourceFilter implements ResourceFilter, Con
     public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
         Throwable mappedThrowable = response.getMappedThrowable();
         if (mappedThrowable != null) {
-            newRelicWrapper.noticeError(mappedThrowable);
+            NewRelic.noticeError(mappedThrowable);
         }
         return response;
     }

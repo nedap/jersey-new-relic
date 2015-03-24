@@ -10,20 +10,13 @@ import org.junit.Test;
 import javax.ws.rs.Path;
 import java.lang.annotation.Annotation;
 
-import static com.palominolabs.jersey.newrelic.ResourceTransactionNamerImpl.getPathWithoutSurroundingSlashes;
 import static org.junit.Assert.assertEquals;
 
 public final class ResourceTransactionNamerImplTest {
-    private ResourceTransactionNamer namer;
-
-    @Before
-    public void setUp() {
-        namer = new ResourceTransactionNamerImpl();
-    }
 
     @Test
     public void testNullPathValue() {
-        assertEquals("", getPathWithoutSurroundingSlashes(null));
+        assertEquals("", ResourceTransactionNamer.getPathWithoutSurroundingSlashes(null));
     }
 
     @Test
@@ -47,7 +40,7 @@ public final class ResourceTransactionNamerImplTest {
         AbstractResourceMethod method =
             new AbstractResourceMethod(resource, null, Void.class, Void.class, "GET", new Annotation[]{});
 
-        assertEquals("/res GET", namer.getTransactionName(method));
+        assertEquals("/res GET", ResourceTransactionNamer.getTransactionName(method));
     }
 
     @Test
@@ -57,7 +50,7 @@ public final class ResourceTransactionNamerImplTest {
             new AbstractSubResourceMethod(resource, null, Void.class, Void.class, new PathValue("/meth"), "GET",
                 new Annotation[]{});
 
-        assertEquals("/res/meth GET", namer.getTransactionName(method));
+        assertEquals("/res/meth GET", ResourceTransactionNamer.getTransactionName(method));
     }
 
     @Test
@@ -67,11 +60,11 @@ public final class ResourceTransactionNamerImplTest {
             new AbstractSubResourceMethod(resource, null, Void.class, Void.class, new PathValue("/meth"), "GET",
                 new Annotation[]{});
 
-        assertEquals("/meth GET", namer.getTransactionName(method));
+        assertEquals("/meth GET", ResourceTransactionNamer.getTransactionName(method));
     }
 
     private static void doPathValueTest(String expected, String input) {
-        assertEquals(expected, getPathWithoutSurroundingSlashes(new PathValue(input)));
+        assertEquals(expected, ResourceTransactionNamer.getPathWithoutSurroundingSlashes(new PathValue(input)));
     }
 
     @Path("/foo")
