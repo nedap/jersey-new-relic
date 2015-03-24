@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Changes from original by Pieter Bos (pieter.bos@nedap.com)
+ *
  * Adds resource filters to integrate New Relic into the Jersey invocation stack.
  */
 public final class NewRelicResourceFilterFactory implements ResourceFilterFactory {

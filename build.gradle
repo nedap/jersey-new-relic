@@ -1,9 +1,11 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
 
-group = 'com.palominolabs.jersey'
-version = '1.0.0-NEDAP'
+group = 'com.nedap.jersey'
+version = '1.0.0'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 sourceCompatibility = JavaVersion.VERSION_1_7
@@ -16,6 +18,16 @@ ext {
       jetty: '9.0.5.v20130815',
       guice: '3.0'
   ]
+}
+
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1"
+  }
 }
 
 dependencies {
@@ -71,45 +83,44 @@ signing {
 }
 
 // Set sonatypeUsername and sonatypePassword in your ~/.gradle/gradle.properties to be able to use this.
-uploadArchives {
-  repositories {
-    mavenDeployer {
-      beforeDeployment { deployment -> signing.signPom(deployment) }
+artifactory {
+  resolve {
+    contextUrl = "https://nedap.artifactoryonline.com/nedap"
+    repository {
+      repoKey = "libs-nedap-local"
+      username = artifactoryUser
+      password = artifactoryPassword
+      maven = true
+    }
+  }
 
-      repository(url: isReleaseVersion ?
-        "https://oss.sonatype.org/service/local/staging/deploy/maven2/" :
-        "https://oss.sonatype.org/content/repositories/snapshots/") {
-        def u = project.hasProperty('sonatypeUsername') ? sonatypeUsername : 'FIXME'
-        def p = project.hasProperty('sonatypePassword') ? sonatypePassword : 'FIXME'
-        authentication(userName: u, password: p)
+  publish {
+    contextUrl = "https://nedap.artifactoryonline.com/nedap"
+    repository {
+      repoKey = version.endsWith("SNAPSHOT") ? "libs-snapshots-local" : "libs-releases-local"
+      username = artifactoryUser
+      password = artifactoryPassword
+    }
+
+    defaults {
+      publishBuildInfo = true
+      publishArtifacts = true
+      publications "mavenJava"
+    }
+  }
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+
+      artifact sourcesJar {
+        classifier "sources"
       }
 
-      pom.project {
-        name 'jersey-new-relic'
-        packaging 'jar'
-        description 'Captures timing and exception data from Jersey resources and submits it to New Relic'
-        url 'https://github.com/palominolabs/jersey-new-relic'
-
-        scm {
-          url 'scm:git@github.com:palominolabs/jersey-new-relic.git'
-          connection 'scm:git@github.com:palominolabs/jersey-new-relic.git'
-          developerConnection 'scm:git@github.com:palominolabs/jersey-new-relic.git'
-        }
-
-        licenses {
-          license {
-            name 'The Apache Software License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-            distribution 'repo'
-          }
-        }
-
-        developers {
-          developer {
-            id 'marshallpierce'
-            name 'Marshall Pierce'
-          }
-        }
+      artifact javadocJar {
+        classifier "javadoc"
       }
     }
   }

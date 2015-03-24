@@ -8,6 +8,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+/**
+* Changes from original by Pieter Bos (pieter.bos@nedap.com)
+*/
 final class ResourceTransactionNamer {
 
     public static String getTransactionName(AbstractResourceMethod am) {

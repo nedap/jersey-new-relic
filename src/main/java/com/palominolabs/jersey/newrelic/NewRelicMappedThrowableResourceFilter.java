@@ -11,6 +11,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import com.newrelic.api.agent.NewRelic;
 
 /**
+ * Changes from original by Pieter Bos (pieter.bos@nedap.com)
+ *
  * Informs New Relic about mapped throwables that are being handled by Jersey rather than propagated up the servlet
  * handling chain.
  */

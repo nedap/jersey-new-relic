@@ -12,6 +12,8 @@ import java.io.IOException;
 import com.newrelic.api.agent.NewRelic;
 
 /**
+ * Changes from original by Pieter Bos (pieter.bos@nedap.com)
+ *
  * Informs New Relic about throwables that propagate up through the servlet layers (instead of, for instance, being
  * handled by Jersey).
  */
