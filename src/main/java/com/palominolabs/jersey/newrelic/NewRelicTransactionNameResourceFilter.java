@@ -11,6 +11,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import com.newrelic.api.agent.NewRelic;
 
 /**
+ * Changes from original by Pieter Bos (pieter.bos@nedap.com)
  * Uses the name provided by {@link NewRelicResourceFilterFactory} to assign the New Relic transaction name for the
  * active request.
  */

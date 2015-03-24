@@ -7,6 +7,7 @@ import com.sun.jersey.api.model.AbstractMethod;
 import com.sun.jersey.api.model.AbstractResourceMethod;
 import com.sun.jersey.api.model.AbstractSubResourceLocator;
 import com.sun.jersey.core.util.FeaturesAndProperties;
+import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ResourceFilter;
 import com.sun.jersey.spi.container.ResourceFilterFactory;
 import org.slf4j.Logger;
