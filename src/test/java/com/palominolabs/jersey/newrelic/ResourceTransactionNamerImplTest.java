@@ -12,11 +12,11 @@ import java.lang.annotation.Annotation;
 
 import static org.junit.Assert.assertEquals;
 
-public final class ResourceTransactionNamerImplTest {
+public final class ResourceTransactionNamerImplTest {  
 
     @Test
     public void testNullPathValue() {
-        assertEquals("", ResourceTransactionNamer.getPathWithoutSurroundingSlashes(null));
+        assertEquals("", ResourceTransactionNamer.getPathWithoutSurroundingSlashes((PathValue) null));
     }
 
     @Test

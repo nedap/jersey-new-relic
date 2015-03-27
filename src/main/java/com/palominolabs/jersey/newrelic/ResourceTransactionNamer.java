@@ -8,6 +8,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
 * Changes from original by Pieter Bos (pieter.bos@nedap.com)
 */
@@ -45,14 +47,19 @@ final class ResourceTransactionNamer {
         if (pathValue == null) {
             return "";
         }
-        String value = pathValue.getValue();
+        return getPathWithoutSurroundingSlashes(pathValue.getValue());
+    }
+
+    public static String getPathWithoutSurroundingSlashes(String value) {
+        if(value == null) {
+            return "";
+        }
         if (value.startsWith("/")) {
             value = value.substring(1);
         }
         if (value.endsWith("/")) {
             value = value.substring(0, value.length() - 1);
         }
-
         return value;
     }
 }

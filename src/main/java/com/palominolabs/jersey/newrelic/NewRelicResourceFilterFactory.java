@@ -16,6 +16,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.core.Context;
+
+import javax.servlet.http.HttpServletRequest;
+import com.palominolabs.servlet.newrelic.NewRelicUnmappedThrowableFilter;
 
 /**
  * Changes from original by Pieter Bos (pieter.bos@nedap.com)
@@ -26,25 +30,15 @@ public final class NewRelicResourceFilterFactory implements ResourceFilterFactor
 
     private static final Logger logger = LoggerFactory.getLogger(NewRelicResourceFilterFactory.class);
 
-    /**
-     * Jersey property to set to control transaction category name. Leave unset to use the New Relic default.
-     */
-    public static final String TRANSACTION_CATEGORY_PROP = "com.palominolabs.jersey.newrelic.transaction.category";
+    private HttpServletRequest threadLocalRequest;//this may not seem threadlocal, but it is really, due to jersey
 
-    private final String category;
-
-    public NewRelicResourceFilterFactory() {
-        this.category = null;
-        // Map<String, Object> props = featuresAndProperties.getProperties();
-        // if (props.containsKey(TRANSACTION_CATEGORY_PROP)) {
-        //     this.category = (String) props.get(TRANSACTION_CATEGORY_PROP);
-        // } else {
-        //     this.category = null;
-        // }
+    public NewRelicResourceFilterFactory(@Context HttpServletRequest request) {
+        this.threadLocalRequest = request;
     }
 
     @Override
     public List<ResourceFilter> create(AbstractMethod am) {
+        
         // documented to only be AbstractSubResourceLocator, AbstractResourceMethod, or AbstractSubResourceMethod
         if (am instanceof AbstractSubResourceLocator) {
             // not actually invoked per request, nothing to do
@@ -52,8 +46,7 @@ public final class NewRelicResourceFilterFactory implements ResourceFilterFactor
             return null;
         } else if (am instanceof AbstractResourceMethod) {
             String transactionName = ResourceTransactionNamer.getTransactionName((AbstractResourceMethod) am);
-
-            return Arrays.asList(new NewRelicTransactionNameResourceFilter(category, transactionName),
+            return Arrays.asList(new NewRelicTransactionNameResourceFilter(threadLocalRequest, null, transactionName),
                 new NewRelicMappedThrowableResourceFilter());
         } else {
             logger.warn("Got an unexpected instance of " + am.getClass().getName() + ": " + am);

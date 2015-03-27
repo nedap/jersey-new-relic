@@ -10,6 +10,8 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.newrelic.api.agent.NewRelic;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Changes from original by Pieter Bos (pieter.bos@nedap.com)
  * Uses the name provided by {@link NewRelicResourceFilterFactory} to assign the New Relic transaction name for the
@@ -20,15 +22,17 @@ final class NewRelicTransactionNameResourceFilter implements ResourceFilter, Con
 
     private final String transactionName;
     private final String category;
+    private HttpServletRequest threadLocalRequest;
 
     /**
      * @param newRelicWrapper wrapper
      * @param category        new relic category
      * @param transactionName the transaction name that this filter will apply to all requests.
      */
-    NewRelicTransactionNameResourceFilter(@Nullable String category, String transactionName) {
+    NewRelicTransactionNameResourceFilter(HttpServletRequest request, @Nullable String category, String transactionName) {
         this.category = category;
         this.transactionName = transactionName;
+        this.threadLocalRequest = request;
     }
 
     @Override
@@ -44,7 +48,8 @@ final class NewRelicTransactionNameResourceFilter implements ResourceFilter, Con
 
     @Override
     public ContainerRequest filter(ContainerRequest request) {
-        NewRelic.setTransactionName(category, this.transactionName);
+        NewRelic.setTransactionName(category, "/" + ResourceTransactionNamer.getPathWithoutSurroundingSlashes(threadLocalRequest.getContextPath()) 
+            + transactionName);
         return request;
     }
 }
