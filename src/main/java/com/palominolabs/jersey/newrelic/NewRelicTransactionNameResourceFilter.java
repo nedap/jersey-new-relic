@@ -12,6 +12,9 @@ import com.newrelic.api.agent.NewRelic;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Changes from original by Pieter Bos (pieter.bos@nedap.com)
  * Uses the name provided by {@link NewRelicResourceFilterFactory} to assign the New Relic transaction name for the
@@ -19,6 +22,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 @ThreadSafe
 final class NewRelicTransactionNameResourceFilter implements ResourceFilter, ContainerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(NewRelicTransactionNameResourceFilter.class);
 
     private final String transactionName;
     private final String category;
@@ -48,8 +53,12 @@ final class NewRelicTransactionNameResourceFilter implements ResourceFilter, Con
 
     @Override
     public ContainerRequest filter(ContainerRequest request) {
-        NewRelic.setTransactionName(category, "/" + ResourceTransactionNamer.getPathWithoutSurroundingSlashes(threadLocalRequest.getContextPath()) 
-            + transactionName);
+        try {
+            NewRelic.setTransactionName(category, "/" + ResourceTransactionNamer.getPathWithoutSurroundingSlashes(threadLocalRequest.getContextPath()) 
+                + transactionName);
+        } catch(Exception e) {
+            logger.error("error naming transaction for new relic", e);
+        }
         return request;
     }
 }

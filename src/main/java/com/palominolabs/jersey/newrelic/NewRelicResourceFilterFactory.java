@@ -19,7 +19,6 @@ import java.util.Map;
 import javax.ws.rs.core.Context;
 
 import javax.servlet.http.HttpServletRequest;
-import com.palominolabs.servlet.newrelic.NewRelicUnmappedThrowableFilter;
 
 /**
  * Changes from original by Pieter Bos (pieter.bos@nedap.com)
@@ -38,18 +37,22 @@ public final class NewRelicResourceFilterFactory implements ResourceFilterFactor
 
     @Override
     public List<ResourceFilter> create(AbstractMethod am) {
-        
-        // documented to only be AbstractSubResourceLocator, AbstractResourceMethod, or AbstractSubResourceMethod
-        if (am instanceof AbstractSubResourceLocator) {
-            // not actually invoked per request, nothing to do
-            logger.debug("Ignoring AbstractSubResourceLocator " + am);
-            return null;
-        } else if (am instanceof AbstractResourceMethod) {
-            String transactionName = ResourceTransactionNamer.getTransactionName((AbstractResourceMethod) am);
-            return Arrays.asList(new NewRelicTransactionNameResourceFilter(threadLocalRequest, null, transactionName),
-                new NewRelicMappedThrowableResourceFilter());
-        } else {
-            logger.warn("Got an unexpected instance of " + am.getClass().getName() + ": " + am);
+        try {
+            // documented to only be AbstractSubResourceLocator, AbstractResourceMethod, or AbstractSubResourceMethod
+            if (am instanceof AbstractSubResourceLocator) {
+                // not actually invoked per request, nothing to do
+                logger.debug("Ignoring AbstractSubResourceLocator " + am);
+                return null;
+            } else if (am instanceof AbstractResourceMethod) {
+                String transactionName = ResourceTransactionNamer.getTransactionName((AbstractResourceMethod) am);
+                return Arrays.asList(new NewRelicTransactionNameResourceFilter(threadLocalRequest, null, transactionName),
+                    new NewRelicMappedThrowableResourceFilter());
+            } else {
+                logger.warn("Got an unexpected instance of " + am.getClass().getName() + ": " + am);
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("could not create filter for resource. Not filtering newrelic requests." + am.getClass().getName(), e);
             return null;
         }
     }
